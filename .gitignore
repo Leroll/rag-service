@@ -1,0 +1,61 @@
+# Python 字节码文件
+__pycache__/
+*.py[cod]
+*$py.class
+
+# 虚拟环境
+venv/
+env/
+.venv/
+env.bak/
+venv.bak/
+
+# 依赖管理
+*.egg-info/
+*.egg
+dist/
+build/
+.eggs/
+pip-wheel-metadata/
+
+# 测试和覆盖率报告
+htmlcov/
+.coverage
+.coverage.*
+*.lcov
+coverage.xml
+*.cover
+.pytest_cache/
+
+# Jupyter Notebook 检查点
+.ipynb_checkpoints/
+
+# IDE 和编辑器文件
+.idea/              # PyCharm
+.vscode/            # Visual Studio Code
+*.sublime-*         # Sublime Text
+*.swp               # Vim 临时文件
+
+# 日志文件
+*.log
+logs/
+
+# 环境变量文件
+.env
+.env.local
+*.env.*
+
+# 打包和临时文件
+*.tar.gz
+*.zip
+*.bak
+*.tmp
+
+# macOS 系统文件
+.DS_Store
+
+# Windows 系统文件
+Thumbs.db
+
+
+resources/*

@@ -1,0 +1,19 @@
+# config/prod.yaml
+file:
+  working_dir: "resources/rag"
+
+embed:
+  embed_model: "nomic-embed-text"
+  embed_host: "http://localhost:11434"
+  embed_dim: 768
+  embed_max_token_size: 8192
+
+llm:
+  model_name: "deepseek-r1:7b"
+  model_host: "http://localhost:11434"
+  num_ctx: 8192
+  llm_model_max_token_size: 8192
+  llm_model_max_async: 4
+
+
+version: "v0.1.0"
