@@ -16,4 +16,4 @@ llm:
   llm_model_max_async: 4
 
 
-version: "v0.1.0"
+version: "v0.1.1"
