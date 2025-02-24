@@ -24,6 +24,11 @@ class LLMConfig(BaseModel):
 class FileConfig(BaseModel):
     """文件相关配置"""
     working_dir: str = "resources/rag"
+    
+class RagServer(BaseModel):
+    """rag服务相关"""
+    host: str = "0.0.0.0"
+    port: int = 50051
 
 
 class ConfigData(BaseModel):
@@ -31,12 +36,13 @@ class ConfigData(BaseModel):
     embed: EmbedConfig
     llm: LLMConfig
     file: FileConfig
+    rag_server: RagServer
     version: str
 
 
 @Singleton
 class Config(object):
-    def __init__(self, conf_path='./config'):
+    def __init__(self, conf_path='config'):
         self.env = self.__init_env()
         self.config = self.__init_config(conf_path)
 
@@ -64,7 +70,7 @@ class Config(object):
             config = ConfigData(**config_dict)
         except FileNotFoundError:
             print(f"Config file {config_path} not found, using default values")
-            config = ConfigData(embed=EmbedConfig(), llm=LLMConfig(), file=FileConfig())
+            config = ConfigData(embed=EmbedConfig(), llm=LLMConfig(), file=FileConfig(), rag_server=RagServer())
         return config
 
     def get_config(self):

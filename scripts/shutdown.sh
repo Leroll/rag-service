@@ -54,5 +54,6 @@ else
   echo "所有服务已成功关闭。"
 fi
 
-# echo "当前显存状态："
-# nvidia-smi
+echo "-----------------------------"
+echo "当前显存状态："
+nvidia-smi

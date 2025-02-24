@@ -31,10 +31,10 @@ coverage.xml
 .ipynb_checkpoints/
 
 # IDE 和编辑器文件
-.idea/              # PyCharm
-.vscode/            # Visual Studio Code
-*.sublime-*         # Sublime Text
-*.swp               # Vim 临时文件
+.idea*
+.vscode/*
+*.sublime-*
+*.swp
 
 # 日志文件
 *.log

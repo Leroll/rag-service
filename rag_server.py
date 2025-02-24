@@ -49,6 +49,27 @@ class QueryRequest(BaseModel):
     only_need_context: bool = False
 
 
+class LegacyQueryRequest(BaseModel):
+    """兼容老的请求参数格式 与 当下请求参数格式
+    """
+    # 老的
+    um: str  # 请求um
+    query_mode: str = 'v'  # 看到请求参数为v，意义不明 
+    request_id: str # 请求id
+    session_id: str # 会话id
+    max_length: int = 512
+    top_p: float = 0.7  # 生成文本的概率
+    temperature: float = 0.95  # 生成文本的温度
+    kdb1: int = 1  # 看到请求参数为0，意义不明
+    kdb2: int = 1  # 看到请求参数为0，意义不明
+    kdb3: int = 1  # 看到请求参数为0，意义不明
+    
+    # 当下的
+    query: str
+    mode: str = "hybrid"
+    only_need_context: bool = False
+
+
 class InsertRequest(BaseModel):
     text: str
 
@@ -111,6 +132,55 @@ async def query_endpoint(request: QueryRequest) -> StreamingResponse:
         except Exception as e:
             # 错误处理
             yield f"data: ERROR: {str(e)}\n\n"
+
+    # 返回StreamingResponse，指定SSE的media_type
+    return StreamingResponse(
+        stream_results(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no"  # 禁用Nginx缓冲
+        }
+    )
+    
+
+# SSE流式输出路由 - 兼容老接口
+@app.post("/v1/query")
+async def query_endpoint_legacy(request: LegacyQueryRequest) -> StreamingResponse:
+    async def stream_results() -> AsyncGenerator[str, None]:
+        try:
+            # 创建查询参数
+            query_param = QueryParam(
+                mode=request.mode, 
+                only_need_context=request.only_need_context,
+                stream=True  # 启用流式输出
+            )
+            
+            # 执行查询
+            resp = rag.query(request.query, param=query_param)
+            
+            # 检查是否为异步生成器
+            if inspect.isasyncgen(resp):
+                # 流式处理异步生成器返回的结果
+                async for chunk in resp:
+                    # SSE格式要求每行以 "data: " 开头并以双换行符结束
+                    # yield f"data: {chunk}\n\n"
+                    res = {"answer": chunk, "code": 200}
+                    yield str(res)
+            else:
+                # 如果不是流式结果，直接返回完整结果
+                # yield f"data: {resp}\n\n"
+                res = {"answer": str(resp), "code":200}
+                yield res
+                
+            # 发送结束信号, 历史接口中在for循环结束后，有一个 code=201 的返回
+            res['code'] = 201
+            yield str(res)
+                
+        except Exception as e:
+            # 错误处理
+            yield {"answer": f"ERROR: {str(e)}\n\n", "code": 102}
 
     # 返回StreamingResponse，指定SSE的media_type
     return StreamingResponse(
@@ -238,21 +308,4 @@ async def get_version():
 if __name__ == "__main__":
     import uvicorn
     
-    uvicorn.run(app, host="0.0.0.0", port=8020)
-
-# Usage example
-# To run the server, use the following command in your terminal:
-# python lightrag_api_openai_compatible_demo.py
-
-# Example requests:
-# 1. Query:
-# curl -X POST "http://127.0.0.1:8020/query" -H "Content-Type: application/json" -d '{"query": "your query here", "mode": "hybrid"}'
-
-# 2. Insert text:
-# curl -X POST "http://127.0.0.1:8020/insert" -H "Content-Type: application/json" -d '{"text": "your text here"}'
-
-# 3. Insert file:
-# curl -X POST "http://127.0.0.1:8020/insert_file" -H "Content-Type: multipart/form-data" -F "file=@path/to/your/file.txt"
-
-# 4. Health check:
-# curl -X GET "http://127.0.0.1:8020/health"
+    uvicorn.run(app, host=cfg.rag_server.host, port=cfg.rag_server.port)

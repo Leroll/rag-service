@@ -15,5 +15,9 @@ llm:
   llm_model_max_token_size: 8192
   llm_model_max_async: 4
 
+rag_server:
+  host: "0.0.0.0"
+  port: 50051
+
 
 version: "v0.1.1"
