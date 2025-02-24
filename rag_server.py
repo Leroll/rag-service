@@ -11,6 +11,9 @@ import aiofiles
 import textract
 import tempfile
 import openpyxl
+from fastapi.responses import StreamingResponse
+from typing import AsyncGenerator
+import inspect
 
 from config import cfg
 nest_asyncio.apply()  # Apply nest_asyncio to solve event loop issues
@@ -57,7 +60,7 @@ class Response(BaseModel):
 
 
 # API routes
-@app.post("/query", response_model=Response)
+@app.post("/query/full", response_model=Response)
 async def query_endpoint(request: QueryRequest):
     try:
         loop = asyncio.get_event_loop()
@@ -75,6 +78,52 @@ async def query_endpoint(request: QueryRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 
+# SSE流式输出路由
+@app.post("/query/stream")
+async def query_endpoint(request: QueryRequest) -> StreamingResponse:
+    async def stream_results() -> AsyncGenerator[str, None]:
+        try:
+            # 创建查询参数
+            query_param = QueryParam(
+                mode=request.mode, 
+                only_need_context=request.only_need_context,
+                stream=True  # 启用流式输出
+            )
+            
+            # 执行查询
+            resp = rag.query(request.query, param=query_param)
+            
+            # 检查是否为异步生成器
+            if inspect.isasyncgen(resp):
+                # 流式处理异步生成器返回的结果
+                async for chunk in resp:
+                    # SSE格式要求每行以 "data: " 开头并以双换行符结束
+                    # yield f"data: {chunk}\n\n"
+                    yield chunk
+            else:
+                # 如果不是流式结果，直接返回完整结果
+                # yield f"data: {resp}\n\n"
+                yield str(resp)
+                
+            # 发送结束信号
+            # yield "data: [DONE]\n\n"
+                
+        except Exception as e:
+            # 错误处理
+            yield f"data: ERROR: {str(e)}\n\n"
+
+    # 返回StreamingResponse，指定SSE的media_type
+    return StreamingResponse(
+        stream_results(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no"  # 禁用Nginx缓冲
+        }
+    )
+
+
 # insert by text
 @app.post("/insert", response_model=Response)
 async def insert_endpoint(request: InsertRequest):
@@ -84,6 +133,7 @@ async def insert_endpoint(request: InsertRequest):
         return Response(status="success", message="Text inserted successfully")
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
 
 # insert by file
 @app.post("/insert_file", response_model=Response)
