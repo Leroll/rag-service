@@ -31,11 +31,16 @@ class RagServer(BaseModel):
     port: int = 50051
 
 
+class TikToken(BaseModel):
+    cache_dir: str = "resources/tiktok"
+    
+
 class ConfigData(BaseModel):
     """整体配置"""
+    file: FileConfig
     embed: EmbedConfig
     llm: LLMConfig
-    file: FileConfig
+    tiktoken: TikToken
     rag_server: RagServer
     version: str
 

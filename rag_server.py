@@ -17,6 +17,7 @@ import inspect
 
 from config import cfg
 nest_asyncio.apply()  # Apply nest_asyncio to solve event loop issues
+os.environ["TIKTOKEN_CACHE_DIR"] = cfg.tiktoken.cache_dir
 
 
 app = FastAPI(title="RAG-service", description="API for RAG operations")
