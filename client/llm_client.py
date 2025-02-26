@@ -64,7 +64,9 @@ def single(text, a):
 
 
 if __name__ == '__main__':
-    query = "小明的父亲是谁"
+    # query = "小明的父亲是谁"
+    query = "1"
+    print(query, end='-'*42+'\n')
     
     for i in test_chat_stream('256', query, 2048, 0.7, 0.95, 1, 1, 1):
         print(i, '\n')
