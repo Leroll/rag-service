@@ -14,6 +14,7 @@ import openpyxl
 from fastapi.responses import StreamingResponse
 from typing import AsyncGenerator
 import inspect
+from fastapi.middleware.cors import CORSMiddleware
 
 from config import cfg
 nest_asyncio.apply()  # Apply nest_asyncio to solve event loop issues
@@ -21,6 +22,13 @@ os.environ["TIKTOKEN_CACHE_DIR"] = cfg.tiktoken.cache_dir
 
 
 app = FastAPI(title="RAG-service", description="API for RAG operations")
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=False,
+    allow_methods=["*"],
+    allow_headers=["*"],
+) # 增加跨域支持 
 
 # Configure working directory
 print(f"working_dir: {cfg.file.working_dir}")
