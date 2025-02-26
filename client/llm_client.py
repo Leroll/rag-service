@@ -61,8 +61,6 @@ def single(text, a):
 
 
 
-
-
 if __name__ == '__main__':
     # query = "小明的父亲是谁"
     query = "1"
