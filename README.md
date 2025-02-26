@@ -1,14 +1,41 @@
-# rag-service
-Cloud-deployed RAG Service API
+# RAG Service 🌟
+[![Version](https://img.shields.io/badge/version-0.1.4-blue)](https://github.com/Leroll/rag-service/releases)
+[![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+
+**Cloud-deployed RAG Service API** 
+
+- 云原生RAG服务API，基于lightRAG构建的即插即用知识增强生成系统，一键可用。
+- 支持多格式文档处理与流式响应。
 
 
-# 安装
+# 安装指南
 ```
+# 1. 安装ollama方式
+sudo tar -C /usr -xzf ollama-linux-amd64.tgz  # 离线安装方式
+export OLLAMA_MODELS=/path/to/ollama_models/  # 更改model位置
+
+# 2. 下载本项目仓库
 git clone --recurse-submodules https://github.com/Leroll/rag-service.git  
 cd rag-service/LightRAG
 pip install -e .
+
+# 3. 安装其他依赖包
+pip install -r requirements.txt  # 另在初次运行时会自动安装一些包
 ```
 
+# 服务管理
+```
+./scripts/start.sh  # 启动项目
+./scripts/shutdown.sh  # 关闭项目
+
+# 清理
+./scripts/clean_log.sh  # 清空当前日志
+./scripts/clean_rag.sh  # 清空rag数据
+
+
+# 接口测试
+./scripts/run_test.sh  
+```
 
 # LOGS
 2025-02-23 v0.1.0，完成基础的rag服务各项功能  
