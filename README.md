@@ -23,6 +23,62 @@ pip install -e .
 pip install -r requirements.txt  # 另在初次运行时会自动安装一些包
 ```
 
+
+# docker部署相关
+
+## 1. 建立docker镜像
+```
+# 进入基础镜像
+docker run -it -p 50051:50051 -v /path/to/ollama_models:/app/ollama_models --gpus all --privileged leroll/cuda:12.1.0-cudnn8-devel0ubuntu22.04-py3.10
+
+# 传输必要文件
+docker cp /path/to/ollama-linux-amd64.tgz container_id:/app/  # 复制ollma文件
+docker cp /path/to/rag-service_vx.x.x.tar.gz container_id:/app/  # 复制服务代码
+# 复制相关 raw_docs
+
+# 镜像内部
+cd app/
+
+# 1. 安装 ollama 
+sudo tar -C /usr -xzf ollama-linux-amd64.tgz
+export OLLAMA_MODELS=/app/ollama_models  # 更改model位置
+rm ollama-linux-amd64.tgz 
+
+# 2. 安装服务
+pip config set global.index-url http://maven.paic.com.cn/repository/pypi/simple
+
+tar xzvf rag-service_vx.x.x.tar.gz
+rm rag-service_vx.x.x.tar.gz
+
+cd rag-service/lightRAG
+pip install -e .
+cd ..
+pip install -r requirements.txt
+
+# 3. 导入相关raw-docs
+
+
+# 4. 验证服务
+./scripts/start.sh
+./scripts/run_test.sh
+./scripts/shutdown.sh
+```
+
+
+## 2. 部署
+```
+# 1. 启动参数
+sleep infiity
+
+# value.yaml配置
+container:
+    port: 50051
+env:
+    env_profile:prod
+terminal: true
+```
+
+
 # 服务管理
 ```
 ./scripts/start.sh  # 启动项目
@@ -38,6 +94,7 @@ pip install -r requirements.txt  # 另在初次运行时会自动安装一些包
 ```
 
 # LOGS
+2025-02-27 v0.2.0 解决一系列bug，完善服务各模块，自测模块，日志模块
 
 2025-02-25 v0.1.4，bug-fix, 修复tiktoken依赖网络下载的bug 
 2025-02-25 v0.1.3，完成对老旧接口的街容 
@@ -51,15 +108,16 @@ pip install -r requirements.txt  # 另在初次运行时会自动安装一些包
 - [x] 完成对excel的支持
 - [x] 完成对SSE流式回复的支持
 - [x] 完成对历史数据输入输出格式的兼容
-- [ ] tag - v0.2.0 - v2025-02-27
+- [x] tag - v0.2.0 - v2025-02-27
     - [x] 浏览器跨域问题
     - [x] 流式回复累加回复
     - [x] bug-fix， 修复"1"，"2"这种query回复报错的问题
     - [x] 新增一键删除rag库的脚本
     - [x] 增加测试案例机制
     - [x] 完善日志功能
-    - [ ] 完成镜像打包制式化pipeline
-    - [ ] 日志按天分割，logratate
+    - [x] 完成镜像打包制式化pipeline
+  [ ] tag - v0.3.0 - v遥遥无期
+    - [ ] 处理ollama lightRAG的日志分割问题
 
  
 
