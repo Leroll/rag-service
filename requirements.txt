@@ -6,3 +6,4 @@ pip install textract
 pip install nest_asyncio
 pip install pyyaml # PyYaml
 pip install openpyxl
+pip install loguru

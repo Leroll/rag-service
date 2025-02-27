@@ -15,6 +15,15 @@ def check_health(base_url):
     response = requests.get(url)
     return response.json()
 
+def check_version(base_url):
+    """版本检查
+    
+    /version 接口
+    """
+    url = f"{base_url}/version"
+    response = requests.get(url)
+    return response.json()
+
 def insert_text(text, base_url):
     """插入文本示例
     
@@ -152,14 +161,16 @@ def test_v1_query(base_url, query_text, mode="hybrid", only_need_context:bool=Fa
 if __name__ == '__main__':
     
     # 本地测试时，host需要修改为127.0.0.1
-    host_name = "127.0.0.1" if cfg.rag_server.host == "0.0.0.0" else cfg.rag_server.host  
-    base_url = f"http://{host_name}:{cfg.rag_server.port}"
+    host_name = "127.0.0.1" if cfg.server.host == "0.0.0.0" else cfg.server.host  
+    base_url = f"http://{host_name}:{cfg.server.port}"
     print(f"BASE_URL:{base_url}")
     
-    # 1. 检查健康
+    # 1. 检查健康 & 版本
     print('-'*21, "1. 健康检查", '-'*21)
     health_result = check_health(base_url=base_url)
     print("Health check:", health_result)
+    version_result = check_version(base_url=base_url)
+    print("Version check:", version_result)
     
     # 2. 插入文本检查
     print('-'*21, "2. 文本插入 /insert", '-'*21)
@@ -240,4 +251,4 @@ if __name__ == '__main__':
     print("query:", query)
     temp_mode = mode[0] 
     only_need_context = False 
-    test_query_stream(base_url=base_url, query_text=query, mode=temp_mode, only_need_context=only_need_context)
+    test_v1_query(base_url=base_url, query_text=query, mode=temp_mode, only_need_context=only_need_context)

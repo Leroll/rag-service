@@ -20,28 +20,38 @@ class LLMConfig(BaseModel):
     llm_model_max_token_size: int = 8192
     llm_model_max_async: int = 4
 
+    
+class TikToken(BaseModel):
+    cache_dir: str = "resources/tiktok"
+
 
 class FileConfig(BaseModel):
     """文件相关配置"""
     working_dir: str = "resources/rag"
     
-class RagServer(BaseModel):
+class RagApi(BaseModel):
     """rag服务相关"""
+    log_path: str = "logs/rag_api.log"
+    log_level: str = "INFO"
+    log_rotation: str = "10 MB"
+
+class ServerConfig(BaseModel):
+    """服务相关配置"""
     host: str = "0.0.0.0"
     port: int = 50051
+    log_path: str = "logs/server.log"
+    log_level: str = "INFO"
+    log_rotation: str = "10 MB"
 
-
-class TikToken(BaseModel):
-    cache_dir: str = "resources/tiktok"
     
-
 class ConfigData(BaseModel):
     """整体配置"""
-    file: FileConfig
     embed: EmbedConfig
     llm: LLMConfig
+    file: FileConfig
+    rag_api: RagApi
     tiktoken: TikToken
-    rag_server: RagServer
+    server: ServerConfig
     version: str
 
 

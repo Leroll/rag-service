@@ -17,12 +17,21 @@ import inspect
 from fastapi.middleware.cors import CORSMiddleware
 import json
 import traceback
-
+from loguru import logger
 from config import cfg
+
+# 设置
 nest_asyncio.apply()  # Apply nest_asyncio to solve event loop issues
 os.environ["TIKTOKEN_CACHE_DIR"] = cfg.tiktoken.cache_dir
+logger.add(cfg.rag_api.log_path, 
+           rotation=cfg.rag_api.log_rotation, 
+           level=cfg.rag_api.log_level,
+           filter="rag_api", 
+           format="{time:YYYY-MM-DD HH:mm:ss.SSS} | {level} | {module} | {function} | {line} - {message}",
+           )
 
 
+# FastAPI app
 app = FastAPI(title="RAG-service", description="API for RAG operations")
 app.add_middleware(
     CORSMiddleware,
@@ -51,6 +60,8 @@ rag = LightRAG(
             texts, embed_model=cfg.embed.embed_model, host=cfg.embed.embed_host
         ),
     ),
+    log_file_path=os.path.join(os.path.dirname(cfg.rag_api.log_path), "lightrag.log"),
+    log_level=cfg.rag_api.log_level,
 )
 
 # Data models
@@ -89,6 +100,7 @@ class Response(BaseModel):
 @app.post("/query/full", response_model=Response)
 async def query_full(request: QueryRequest):
     try:
+        logger.info(f"IN | {request.model_dump()}")
         loop = asyncio.get_event_loop()
         result = await loop.run_in_executor(
             None,
@@ -99,15 +111,21 @@ async def query_full(request: QueryRequest):
                 ),
             ),
         )
-        return Response(status="success", data=result)
+        response = Response(status="success", data=result)
+        logger.info(f"OUT | {response.model_dump()}")
+        return response
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        resp = Response(status="error", message=traceback.format_exc())
+        logger.error(f"OUT | {resp.model_dump()}")
+        return resp
 
 
 # SSE流式输出路由
 # 更改了SSE的输出格式，不再以 "data: " 开头，而是直接返回json格式的数据
 @app.post("/query/stream")
 async def query_stream(request: QueryRequest) -> StreamingResponse:
+    logger.info(f"IN | {request.model_dump()}")
+    
     async def stream_results() -> AsyncGenerator[str, None]:
         try:
             # 创建查询参数
@@ -123,21 +141,25 @@ async def query_stream(request: QueryRequest) -> StreamingResponse:
             # 检查是否为异步生成器
             if inspect.isasyncgen(resp):
                 # 流式处理异步生成器返回的结果
+                res = ""
                 async for chunk in resp:
                     # SSE格式要求每行以 "data: " 开头并以双换行符结束
                     # yield f"data: {chunk}\n\n"
+                    res += chunk
                     yield chunk
             else:
                 # 如果不是流式结果，直接返回完整结果
-                # yield f"data: {resp}\n\n"
-                yield json.dumps(resp, ensure_ascii=False)
+                res = json.dumps(resp, ensure_ascii=False)
+                yield res
                 
             # 发送结束信号
             # yield "data: [DONE]\n\n"
+            logger.info(f"OUT | {res}")
                 
         except Exception as e:
             # 错误处理
             msg = f"data: ERROR: {traceback.format_exc()}\n\n"
+            logger.error(f"OUT | {msg}")
             yield json.dumps(msg, ensure_ascii=False)
 
     # 返回StreamingResponse，指定SSE的media_type
@@ -162,35 +184,35 @@ async def v1_query_legacy(request: LegacyQueryRequest) -> StreamingResponse:
     """
     async def stream_results() -> AsyncGenerator[str, None]:
         try:
-            # 创建查询参数
+            logger.info(f"IN | {request.model_dump()}")
+            
             query_param = QueryParam(
                 mode=request.mode, 
                 only_need_context=request.only_need_context,
                 stream=True  # 启用流式输出
-            )
-            # 执行查询
+            ) # 创建查询参数
             resp = rag.query(request.query, param=query_param)
             
-            # 检查是否为异步生成器
-            if inspect.isasyncgen(resp):
-                # 流式处理异步生成器返回的结果
+            
+            if inspect.isasyncgen(resp):  # 检查是否为异步生成器
                 chunk_all = ""
-                async for chunk in resp:
+                async for chunk in resp:  # 流式处理异步生成器返回的结果
                     chunk_all += chunk
                     res = {"answer": chunk_all, "code": 200}
                     yield json.dumps(res, ensure_ascii=False)  # 流式返回时，fastapi不会自动转换为json格式，需手动
             else:
-                # 如果不是流式结果，直接返回完整结果
-                res = {"answer": str(resp), "code":200}
+                res = {"answer": str(resp), "code":200}  
                 yield json.dumps(res, ensure_ascii=False)
                 
             # 发送结束信号, 历史接口中在for循环结束后，有一个 code=201 的返回
+            logger.info(f"OUT | {res}")
             res['code'] = 201
             yield json.dumps(res, ensure_ascii=False)
                 
         except Exception as e:
-            # 错误处理
-            yield json.dumps({"answer": f"ERROR: {traceback.format_exc()}\n\n", "code": 102}, ensure_ascii=False)
+            res = {"answer": f"ERROR: {traceback.format_exc()}\n\n", "code": 102}
+            logger.error(f"OUT | {res}")
+            yield json.dumps(res, ensure_ascii=False)
 
     # 返回StreamingResponse，指定SSE的media_type
     return StreamingResponse(
@@ -206,13 +228,18 @@ async def v1_query_legacy(request: LegacyQueryRequest) -> StreamingResponse:
 
 # insert by text
 @app.post("/insert", response_model=Response)
-async def insert_endpoint(request: InsertRequest):
+async def insert(request: InsertRequest):
     try:
+        logger.info(f"IN | {request.model_dump()}")
         loop = asyncio.get_event_loop()
         await loop.run_in_executor(None, lambda: rag.insert(request.text))
-        return Response(status="success", message="Text inserted successfully")
+        resp = Response(status="success", message="Text inserted successfully")
+        logger.info(f"OUT | {resp.model_dump()}")
+        return resp
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        resp = Response(status="error", message=traceback.format_exc())
+        logger.error(f"OUT | {resp.model_dump()}")
+        return resp
 
 
 # insert by file
@@ -222,6 +249,7 @@ async def insert_file(file: UploadFile = File(...)):
     处理上传的文件并插入到LightRAG，支持多种文件类型（包括Excel、PDF、DOCX等）
     """
     try:
+        logger.info(f"IN | {file.filename}")
         # 读取文件内容（字节流）
         file_content = await file.read()
         
@@ -289,33 +317,36 @@ async def insert_file(file: UploadFile = File(...)):
         loop = asyncio.get_event_loop()
         await loop.run_in_executor(None, lambda: rag.insert(content))
 
-        return Response(
+        resp = Response(
             status="success",
             message=f"成功处理文件 {file.filename} 并插入内容"
         )
+        logger.info(f"OUT | {resp.model_dump()}")
+        return resp
 
     except Exception as e:
-        raise HTTPException(
-            status_code=500,
-            detail=f"处理文件 {file.filename} 时出错: {str(e)}"
+        resp = Response(
+            status="error",
+            message=f"处理文件 {file.filename} 时出错: {traceback.format_exc()}"
         )
-
+        logger.error(f"OUT | {resp.model_dump()}")
+        return resp
 
 
 @app.get("/health")
 async def health_check():
-    return {"status": "healthy"}
+    resp = {"status": "healthy"}
+    logger.info(f"OUT | {resp}")
+    return resp
 
 
 @app.get("/version", response_model=Response)
 async def get_version():
     try:
-        return Response(status="success", data=cfg.version, message="Version retrieved successfully")
+        resp = Response(status="success", data=cfg.version, message="Version retrieved successfully")
+        logger.info(f"OUT | {resp.model_dump()}")
+        return resp
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-
-if __name__ == "__main__":
-    import uvicorn
-    
-    uvicorn.run(app, host=cfg.rag_server.host, port=cfg.rag_server.port)
+        resp = Response(status="error", message=traceback.format_exc())
+        logger.error(f"OUT | {resp.model_dump()}")
+        return resp

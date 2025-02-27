@@ -28,27 +28,27 @@ else
   echo "未发现 ollama_llama_server 残留进程。"
 fi
 
-# 停止 rag_server.py
+# 停止 server.py
 echo "-----------------------------"
-echo "正在检查 rag_server.py..."
-PYTHON_PID=$(ps aux | grep 'rag_server.py' | grep -v grep | awk '{print $2}')
+echo "正在检查 server.py..."
+PYTHON_PID=$(ps aux | grep "python server.py" | grep -v grep | awk '{print $2}')
 if [ ! -z "$PYTHON_PID" ]; then
-  echo "找到 rag_server.py (PID: $PYTHON_PID)，发送终止信号..."
+  echo "找到 server.py (PID: $PYTHON_PID)，发送终止信号..."
   kill -TERM "$PYTHON_PID"  # 使用 SIGTERM 优雅终止
   sleep 2  # 等待进程退出
   if ps -p "$PYTHON_PID" > /dev/null; then
     echo "进程未退出，强制终止..."
     kill -9 "$PYTHON_PID"  # 如果未退出，强制杀掉
   fi
-  echo "已停止 rag_server.py (PID: $PYTHON_PID)"
+  echo "已停止 server.py (PID: $PYTHON_PID)"
 else
-  echo "rag_server.py 未运行。"
+  echo "server.py 未运行。"
 fi
 
 echo "-----------------------------"
 # 验证资源状态
 echo "验证服务状态："
-if pgrep -f "ollama" > /dev/null || pgrep -f "rag_server.py" > /dev/null; then
+if pgrep -f "ollama" > /dev/null || pgrep -f "python server.py" > /dev/null; then
   echo "警告：仍有相关进程未关闭，请手动检查。"
 else
   echo "所有服务已成功关闭。"

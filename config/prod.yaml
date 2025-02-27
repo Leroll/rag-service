@@ -18,9 +18,17 @@ llm:
 tiktoken:
   cache_dir: "resources/tiktok"
 
-rag_server:
-  host: "0.0.0.0"
-  port: 50051
+rag_api:
+  log_path: "logs/rag_api.log"
+  log_level: "INFO" # DEBUG, INFO, WARNING, ERROR, CRITICAL
+  log_rotation: "10 MB"
+
+server:
+    host: "0.0.0.0"
+    port: 50051
+    log_path: "logs/server.log"
+    log_level: "INFO" # DEBUG, INFO, WARNING, ERROR, CRITICAL
+    log_rotation: "10 MB"
 
 
 version: "v0.1.4"

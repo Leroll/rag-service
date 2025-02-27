@@ -2,9 +2,8 @@
 
 # 定义日志文件和 PID 文件路径
 OLLAMA_LOG="logs/ollama.log"
-SERVER_LOG="logs/rag_server.log"
 OLLAMA_PID_FILE="logs/ollama.pid"
-SERVER_PID_FILE="logs/rag_server.pid"
+SERVER_PID_FILE="logs/server.pid"
 
 # 确保 logs 目录存在
 mkdir -p logs
@@ -37,17 +36,17 @@ fi
 
 # 启动 python 服务
 echo "-----------------------------"
-nohup python rag_server.py >> "${SERVER_LOG}" 2>&1 &
+nohup python server.py > /dev/null 2>&1 &
 SERVER_PID=$!
 echo "$SERVER_PID" > "$SERVER_PID_FILE"
-echo "rag_server 服务已启动，PID: ${SERVER_PID}，日志输出至: ${SERVER_LOG}"
+echo "server 服务已启动，PID: ${SERVER_PID} "
 
 # 等待并检查 python 服务是否启动成功
 sleep 2
 if ps -p "$SERVER_PID" > /dev/null; then
-  echo "rag_server 服务启动成功。"
+  echo "server 服务启动成功。"
 else
-  echo "rag_server 服务启动失败，请检查日志: ${SERVER_LOG}"
+  echo "server 服务启动失败"
   exit 1
 fi
 
