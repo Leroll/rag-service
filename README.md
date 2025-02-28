@@ -29,7 +29,7 @@ pip install -r requirements.txt  # 另在初次运行时会自动安装一些包
 ## 1. 建立docker镜像
 ```
 # 进入基础镜像
-docker run -it -p 50051:50051 -v /path/to/ollama_models:/app/ollama_models --gpus all --privileged leroll/cuda:12.1.0-cudnn8-devel0ubuntu22.04-py3.10
+docker run -it -p 50051:50051 -v /path/to/ollama_models:/app/ollama_models --gpus all --privileged leroll/cuda:12.1.0-cudnn8-devel-ubuntu22.04-py3.10
 
 # 传输必要文件
 docker cp /path/to/ollama-linux-amd64.tgz container_id:/app/  # 复制ollma文件
@@ -40,12 +40,14 @@ docker cp /path/to/rag-service_vx.x.x.tar.gz container_id:/app/  # 复制服务�
 cd app/
 
 # 1. 安装 ollama 
-sudo tar -C /usr -xzf ollama-linux-amd64.tgz
-export OLLAMA_MODELS=/app/ollama_models  # 更改model位置
+tar -C /usr -xzf ollama-linux-amd64.tgz  # root不用sudo
+export OLLAMA_MODELS=/app/ollama_models  >> ~/.bashrc # 更改model位置
+source ~/.bashrc
 rm ollama-linux-amd64.tgz 
 
 # 2. 安装服务
 pip config set global.index-url http://maven.paic.com.cn/repository/pypi/simple
+pip config set install.trusted-host maven.paic.com.cn
 
 tar xzvf rag-service_vx.x.x.tar.gz
 rm rag-service_vx.x.x.tar.gz
@@ -66,16 +68,22 @@ pip install -r requirements.txt
 
 
 ## 2. 部署
+使用这种方式改起来方便点
 ```
 # 1. 启动参数
 sleep infiity
 
-# value.yaml配置
+# 2. value.yaml配置
 container:
     port: 50051
 env:
     env_profile:prod
 terminal: true
+
+
+# 3. 进入镜像后
+ln -s /nas/rag-service/ollama_models /app/ollama_models
+./script/start.sh
 ```
 
 
@@ -118,6 +126,8 @@ terminal: true
     - [x] 完成镜像打包制式化pipeline
   [ ] tag - v0.3.0 - v遥遥无期
     - [ ] 处理ollama lightRAG的日志分割问题
+    - [ ] 写一个插入文件的nohup脚本
+    - [ ] Docker 时间优化
 
  
 

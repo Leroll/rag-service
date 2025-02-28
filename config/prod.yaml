@@ -31,4 +31,4 @@ server:
     log_rotation: "10 MB"
 
 
-version: "v0.1.4"
+version: "v0.2.0"
