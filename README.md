@@ -1,5 +1,5 @@
 # RAG Service 🌟
-[![Version](https://img.shields.io/badge/version-0.1.4-blue)](https://github.com/Leroll/rag-service/releases)
+[![Version](https://img.shields.io/badge/version-0.2.0-blue)](https://github.com/Leroll/rag-service/releases)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
 **Cloud-deployed RAG Service API** 
