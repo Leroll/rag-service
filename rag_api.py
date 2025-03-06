@@ -75,14 +75,16 @@ class LegacyQueryRequest(BaseModel):
     """兼容老的请求参数格式 与 当下请求参数格式
     """
     # 老的
+    um: str  # 请求um
     request_id: str # 请求id
     session_id: str # 会话id
-    um: str  # 请求um
     query_mode: str = 'v'  # 看到请求参数为v，意义不明 
     
     # 当下的
     query: str
-    mode: str = "naive"  # 暂时默认为naive
+    mode: str = "naive"  # 暂时默认为naive, 
+                          # naive 的时候就不是异步生成器了，需要进一步检查 #TODO
+                          # 但是mix, hybrid的效果不好，需要进一步调整
     only_need_context: bool = False
 
 
@@ -118,69 +120,12 @@ async def query_full(request: QueryRequest):
         resp = Response(status="error", message=traceback.format_exc())
         logger.error(f"OUT | {resp.model_dump()}")
         return resp
-
-
-# SSE流式输出路由
-# 更改了SSE的输出格式，不再以 "data: " 开头，而是直接返回json格式的数据
-@app.post("/query/stream")
-async def query_stream(request: QueryRequest) -> StreamingResponse:
-    logger.info(f"IN | {request.model_dump()}")
-    
-    async def stream_results() -> AsyncGenerator[str, None]:
-        try:
-            # 创建查询参数
-            query_param = QueryParam(
-                mode=request.mode, 
-                only_need_context=request.only_need_context,
-                stream=True  # 启用流式输出
-            )
-            
-            # 执行查询
-            resp = rag.query(request.query, param=query_param)
-            
-            # 检查是否为异步生成器
-            if inspect.isasyncgen(resp):
-                # 流式处理异步生成器返回的结果
-                res = ""
-                async for chunk in resp:
-                    # SSE格式要求每行以 "data: " 开头并以双换行符结束
-                    # yield f"data: {chunk}\n\n"
-                    res += chunk
-                    yield chunk
-            else:
-                # 如果不是流式结果，直接返回完整结果
-                res = json.dumps(resp, ensure_ascii=False)
-                yield res
-                
-            # 发送结束信号
-            # yield "data: [DONE]\n\n"
-            logger.info(f"OUT | {res}")
-                
-        except Exception as e:
-            # 错误处理
-            msg = f"data: ERROR: {traceback.format_exc()}\n\n"
-            logger.error(f"OUT | {msg}")
-            yield json.dumps(msg, ensure_ascii=False)
-
-    # 返回StreamingResponse，指定SSE的media_type
-    return StreamingResponse(
-        stream_results(),
-        media_type="text/event-stream",
-        headers={
-            "Cache-Control": "no-cache",
-            "Connection": "keep-alive",
-            "X-Accel-Buffering": "no"  # 禁用Nginx缓冲
-        }
-    )
     
 
-# SSE流式输出路由 - 兼容老接口
+# 流式查询
 @app.post("/v1/query")
 async def v1_query_legacy(request: LegacyQueryRequest) -> StreamingResponse:
-    """对齐老项目的流式接口
-    
-    该接口流式回复的时候是，累加的，即每次返回的结果都是上一次的结果加上这次的结果
-    并且回复格式是 {answer: str, code: int}，其中 code=200 表示正常回复，code=201 表示结束
+    """流式接口，直接流式返回答案，不做json包装，且不是SSE协议
     """
     async def stream_results() -> AsyncGenerator[str, None]:
         try:
@@ -190,31 +135,27 @@ async def v1_query_legacy(request: LegacyQueryRequest) -> StreamingResponse:
                 mode=request.mode, 
                 only_need_context=request.only_need_context,
                 stream=True  # 启用流式输出
-            ) # 创建查询参数
+            )
+        
             resp = rag.query(request.query, param=query_param)
             
-            
-            if inspect.isasyncgen(resp):  # 检查是否为异步生成器
-                chunk_all = ""
+            is_stream = inspect.isasyncgen(resp)  # 检查是否为异步生成器
+            if is_stream:  # 检查是否为异步生成器
+                total = ""
                 async for chunk in resp:  # 流式处理异步生成器返回的结果
-                    chunk_all += chunk
-                    res = {"answer": chunk_all, "code": 200}
-                    yield json.dumps(res, ensure_ascii=False)  # 流式返回时，fastapi不会自动转换为json格式，需手动
+                    total += chunk
+                    yield chunk  # 流式返回时，fastapi不会自动转换为json格式，这里是纯字符串返回
             else:
-                res = {"answer": str(resp), "code":200}  
-                yield json.dumps(res, ensure_ascii=False)
+                total = resp
+                yield resp  # 直接返回结果
                 
-            # 发送结束信号, 历史接口中在for循环结束后，有一个 code=201 的返回
-            logger.info(f"OUT | {res}")
-            res['code'] = 201
-            yield json.dumps(res, ensure_ascii=False)
+            logger.info(f"OUT | is_asyncgen: {is_stream} | {total}")
                 
         except Exception as e:
-            res = {"answer": f"ERROR: {traceback.format_exc()}\n\n", "code": 102}
+            res = f"ERROR: {traceback.format_exc()}"
             logger.error(f"OUT | {res}")
             yield json.dumps(res, ensure_ascii=False)
-
-    # 返回StreamingResponse，指定SSE的media_type
+            
     return StreamingResponse(
         stream_results(),
         media_type="text/event-stream",

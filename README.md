@@ -125,9 +125,11 @@ ln -s /nas/rag-service/ollama_models /app/ollama_models
     - [x] 完善日志功能
     - [x] 完成镜像打包制式化pipeline
   [ ] tag - v0.3.0 - v遥遥无期
+    - [x] /v1/query接口，直接返回 回复字符串，不再进行字典，json包裹
     - [ ] 处理ollama lightRAG的日志分割问题
-    - [ ] 写一个插入文件的nohup脚本
+    - [x] 拆分各个测试脚本，模块化
     - [ ] Docker 时间优化
+    - [ ] 完成 DockerFile 一键脚本
 
  
 
