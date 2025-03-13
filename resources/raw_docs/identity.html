@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>无师RAG系统介绍</title>
+    <style>
+        .highlight { color: #e74c3c; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="main-title">零样本<span style="font-weight: 300;">自进化</span>RAG系统</h1>
+        
+        <section id="overview">
+            <h2><img src="icon.png" alt="系统图标">核心特性</h2>
+            <div class="content-box">
+                <p>本系统通过<strong>三重自驱动机制</strong>实现无监督学习：</p>
+                <ul class="feature-list">
+                    <li>✅ 自检索增强 <em>(Self-Retrieval)</em></li>
+                    <li>✅ 自知识蒸馏 <sup>专利技术</sup></li>
+                    <li>✅ 动态记忆网络 <a href="#ref">[1]</a></li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="architecture">
+            <h2>🏛 系统架构</h2>
+            <div class="diagram">
+                <svg width="100" height="100">
+                    <!-- 此处省略SVG图形代码 -->
+                </svg>
+            </div>
+            <table class="tech-spec">
+                <thead>
+                    <tr>
+                        <th>模块</th>
+                        <th>技术栈</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>语义路由</td>
+                        <td>BERT+<span class="highlight">动态聚类</span></td>
+                    </tr>
+                    <tr>
+                        <td>知识更新</td>
+                        <td>Δ-Learning<sub>2024</sub></td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <div class="code-sample">
+            <h3>示例代码</h3>
+            <pre><code class="language-python">
+def self_rag(query):
+    # 自检索组件
+    context = <span style="color:blue">retrieve</span>(query) 
+    # 自验证模块
+    return generate(context)
+            </code></pre>
+        </div>
+
+        <footer>
+            <p>更多信息请联系: 
+                <a href="mailto:contact@rag.com" class="email">
+                    contact@rag.com
+                </a>
+            </p>
+            <!-- 隐藏注释 -->
+            <script>
+                console.log("Tracking code");
+            </script>
+        </footer>
+    </div>
+</body>
+</html>
