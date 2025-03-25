@@ -1,5 +1,6 @@
 #!/bin/bash
 # 定义 Python 脚本路径
+# 清理对应config里面的rag缓存文件
 PYTHON_SCRIPT="utils/clean_rag.py"
 
 # 检查 Python 脚本是否存在

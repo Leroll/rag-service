@@ -127,7 +127,9 @@ ln -s /nas/rag-service/ollama_models /app/ollama_models
 - [x] tag - v0.2.1 - v2025-03-27
     - [x] /v1/query接口，直接返回 回复字符串，不再进行字典，json包裹
     - [x] 拆分各个测试脚本，模块化
+    - [x] 文件预处理拆分为单独的模块
     - [ ] 新增html富文本清洗脚本
+    - [ ] 新增对doc文件插入的支持
 - [ ] tag - v0.3.0 - v遥遥无期
     - [ ] 处理ollama lightRAG的日志分割问题
     - [ ] Docker 时间优化

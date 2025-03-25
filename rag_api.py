@@ -8,9 +8,7 @@ from typing import Optional
 import asyncio
 import nest_asyncio
 import aiofiles
-import textract
-import tempfile
-import openpyxl
+from file_processing import file_processing
 from fastapi.responses import StreamingResponse
 from typing import AsyncGenerator
 import inspect
@@ -23,11 +21,19 @@ from config import cfg
 # 设置
 nest_asyncio.apply()  # Apply nest_asyncio to solve event loop issues
 os.environ["TIKTOKEN_CACHE_DIR"] = cfg.tiktoken.cache_dir
+def logger_filter(record: dict) -> bool:
+    filter_modules = ["rag_api", "file_processing"]
+    flag = False
+    for module in filter_modules:
+        if module in record["module"]:
+            flag = True
+            break
+    return flag
 logger.add(cfg.rag_api.log_path, 
            rotation=cfg.rag_api.log_rotation, 
            level=cfg.rag_api.log_level,
-           filter="rag_api", 
-           format="{time:YYYY-MM-DD HH:mm:ss.SSS} | {level} | {module} | {function} | {line} - {message}",
+           filter=logger_filter, 
+           format="{time:YYYY-MM-DD HH:mm:ss.SSS} | {level} | {module} | {function}:{line} | {message}",
            )
 
 
@@ -191,70 +197,17 @@ async def insert_file(file: UploadFile = File(...)):
     """
     try:
         logger.info(f"IN | {file.filename}")
-        # 读取文件内容（字节流）
-        file_content = await file.read()
         
-        # 获取文件扩展名
-        file_extension = file.filename.lower().split('.')[-1] if '.' in file.filename else ''
+        # 1. 获取文件信息
+        file_content = await file.read()  # 读取文件内容（字节流）
+        file_extension = file.filename.lower().split('.')[-1] if '.' in file.filename else ''  # 获取文件扩展名
         
-        # 处理 Excel 文件 (.xlsx)
-        if file_extension == 'xlsx':
-            try:
-                # 创建临时文件来存储上传的字节内容
-                with tempfile.NamedTemporaryFile(delete=False, suffix='.xlsx') as temp_file:
-                    temp_file.write(file_content)
-                    temp_file_path = temp_file.name
-                
-                # 使用 openpyxl 读取 Excel 文件
-                workbook = openpyxl.load_workbook(temp_file_path)
-                content = ""
-                for sheet in workbook.sheetnames:
-                    worksheet = workbook[sheet]
-                    for row in worksheet.rows:
-                        for cell in row:
-                            cell_value = cell.value
-                            if cell_value is not None:
-                                content += str(cell_value) + " "
-                
-                # 删除临时文件
-                os.unlink(temp_file_path)
-                
-            except Exception as excel_error:
-                raise HTTPException(
-                    status_code=400,
-                    detail=f"处理 Excel 文件 {file.filename} 失败: {str(excel_error)}"
-                )
-        
-        # 处理其他文件类型（如 PDF、DOCX、PPTX 等）
-        else:
-            try:
-                # 创建临时文件来存储上传的字节内容
-                with tempfile.NamedTemporaryFile(delete=False, suffix=f'.{file_extension}') as temp_file:
-                    temp_file.write(file_content)
-                    temp_file_path = temp_file.name
-                
-                # 使用 textract 提取内容
-                text_content = textract.process(temp_file_path)
-                content = text_content.decode('utf-8')
-                
-                # 删除临时文件
-                os.unlink(temp_file_path)
-                
-            except Exception as textract_error:
-                # 如果 textract 处理失败，尝试直接解码（适用于纯文本文件）
-                try:
-                    content = file_content.decode('utf-8')
-                except UnicodeDecodeError:
-                    # 尝试使用 GBK 编码（常见于中文文档）
-                    try:
-                        content = file_content.decode('gbk')
-                    except UnicodeDecodeError:
-                        raise HTTPException(
-                            status_code=400,
-                            detail="无法解码文件内容，请确保文件格式受支持"
-                        )
-
-        # 异步插入内容到 LightRAG
+        # 2. 对文件进行处理
+        content, msg = file_processing(file_content, file_extension)   
+        if content is None:
+            raise Exception(f"处理文件 {file.filename} 时出错: {msg}")
+             
+        # 3. 异步插入内容到 LightRAG
         loop = asyncio.get_event_loop()
         await loop.run_in_executor(None, lambda: rag.insert(content))
 
@@ -268,7 +221,7 @@ async def insert_file(file: UploadFile = File(...)):
     except Exception as e:
         resp = Response(
             status="error",
-            message=f"处理文件 {file.filename} 时出错: {traceback.format_exc()}"
+            message=f"处理文件 {file.filename} 时出错: {e}"
         )
         logger.error(f"OUT | {resp.model_dump()}")
         return resp

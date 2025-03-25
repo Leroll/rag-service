@@ -22,14 +22,13 @@ if __name__ == '__main__':
     base_url = f"http://{host_name}:{cfg.server.port}"
     print(f"BASE_URL:{base_url}")
     
-    # txt 文件
-    print('-'*21, "文件插入-txt /insert_file", '-'*21)
-    file_path = 'resources/raw_docs/identity.txt'
-    file_result = insert_file(file_path, base_url=base_url)
-    print("File insert result:", file_result)
-    
-    # excel 文件
-    print('-'*21, "文件插入-excel /insert_file", '-'*21)
-    file_path = 'resources/raw_docs/identity.xlsx'
-    file_result = insert_file(file_path, base_url=base_url)
-    print("File insert result:", file_result)
+    file_path = [
+        # 'resources/raw_docs/identity.txt',
+        # 'resources/raw_docs/identity.xlsx',
+        'resources/raw_企业分析报告/附件-2.doc',
+    ]
+    for path in file_path:
+        print('-'*21, "文件插入", '-'*21)
+        print("File path:", path)
+        file_result = insert_file(path, base_url=base_url)
+        print("File insert result:", file_result)

@@ -43,6 +43,7 @@ logger.add(
     backtrace=True,
     encoding="utf-8",
     filter="uvicorn",
+    format="{time:YYYY-MM-DD HH:mm:ss.SSS} | {level} | {module} | {function}:{line} | {message}",
 )
 
 # 启动服务 -------------------------------------------------------
