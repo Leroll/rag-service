@@ -38,7 +38,7 @@ coverage.xml
 
 # 日志文件
 *.log
-logs/
+logs/*
 
 # 环境变量文件
 .env
