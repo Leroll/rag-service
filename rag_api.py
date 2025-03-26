@@ -48,12 +48,13 @@ app.add_middleware(
 ) # 增加跨域支持 
 
 # Configure working directory
-print(f"working_dir: {cfg.file.working_dir}")
-if not os.path.exists(cfg.file.working_dir):
-    os.mkdir(cfg.file.working_dir)
+rag_path = cfg.scene.path + '/rag'
+print(f"rag_path: {rag_path}")
+if not os.path.exists(rag_path):
+    os.mkdir(rag_path)
 
 rag = LightRAG(
-    working_dir=cfg.file.working_dir,
+    working_dir=rag_path,
     llm_model_func=ollama_model_complete,
     llm_model_name=cfg.llm.model_name,
     llm_model_max_async=cfg.llm.llm_model_max_async,

@@ -46,7 +46,7 @@ def graph_visual_with_html(graph_path, save_path):
     net.show(save_path)
 
 if __name__ == '__main__':
-    graph_path = cfg.file.working_dir + "/graph_chunk_entity_relation.graphml"
-    save_path = cfg.file.working_dir + "/knowledge_graph.html"
+    graph_path = cfg.scene.path + "rag/graph_chunk_entity_relation.graphml"
+    save_path = cfg.scene.path + "rag/knowledge_graph.html"
     graph_visual_with_html(graph_path, save_path)
     

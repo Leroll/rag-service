@@ -9,7 +9,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))) 
 from config import cfg
 
 # 获取配置
-working_dir = cfg.file.working_dir
+working_dir = cfg.scene.path + '/rag'
 
 # 检查目录并删除文件
 if os.path.isdir(working_dir):

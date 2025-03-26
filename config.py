@@ -25,9 +25,9 @@ class TikToken(BaseModel):
     cache_dir: str = "resources/tiktok"
 
 
-class FileConfig(BaseModel):
-    """文件相关配置"""
-    working_dir: str = "resources/rag"
+class SceneConfig(BaseModel):
+    """场景相关配置"""
+    path: str = "resources/scenes/identity" 
     
 class RagApi(BaseModel):
     """rag服务相关"""
@@ -48,7 +48,7 @@ class ConfigData(BaseModel):
     """整体配置"""
     embed: EmbedConfig
     llm: LLMConfig
-    file: FileConfig
+    scene: SceneConfig
     rag_api: RagApi
     tiktoken: TikToken
     server: ServerConfig
@@ -85,7 +85,7 @@ class Config(object):
             config = ConfigData(**config_dict)
         except FileNotFoundError:
             print(f"Config file {config_path} not found, using default values")
-            config = ConfigData(embed=EmbedConfig(), llm=LLMConfig(), file=FileConfig(), rag_server=RagServer())
+            config = ConfigData(embed=EmbedConfig(), llm=LLMConfig(), scene=SceneConfig(), rag_server=RagServer())
         return config
 
     def get_config(self):
@@ -102,5 +102,5 @@ if __name__ == "__main__":
     cfg = cfg.get_config()
     print(cfg)
     print(cfg.embed.embed_model)
-    print(cfg.file.working_dir)
+    print(cfg.scene.path)
     print(cfg.version)
