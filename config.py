@@ -2,6 +2,7 @@ import yaml
 import os
 from pydantic import BaseModel
 from utils import Singleton  # 假设 utils 中有 Singleton 实现
+from enum import Enum
 
 
 class EmbedConfig(BaseModel):
@@ -24,10 +25,14 @@ class LLMConfig(BaseModel):
 class TikToken(BaseModel):
     cache_dir: str = "resources/tiktok"
 
+class RagMode(Enum):
+    naive = "naive"  # 基础的向量库检索模式，阉割掉了LightRAG的图的部份
+    default = "default"  # 默认的LightRAG模式，数据导入时会进行实体及关系抽取形成图
 
 class SceneConfig(BaseModel):
     """场景相关配置"""
     path: str = "resources/scenes/identity" 
+    mode: RagMode = RagMode.default  # 默认原生态标准LightRAG
     
 class RagApi(BaseModel):
     """rag服务相关"""

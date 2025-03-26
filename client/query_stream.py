@@ -71,8 +71,11 @@ if __name__ == '__main__':
     args = parser.parse_args()
     
     # 参数落地
-    url = f"http://{cfg.server.host}:{cfg.server.port}/v1/query"
+    host_name = "127.0.0.1" if cfg.server.host == "0.0.0.0" else cfg.server.host  # 本地测试时，host需要修改为127.0.0.1
+    url = f"http://{host_name}:{cfg.server.port}/v1/query"
     chunksize = args.chunksize
+    mode = 'naive'
+    only_need_context = False
     
     if args.query :
         querys = [args.query]  # 若命令行参数中有 query，则使用命令行参数中的 query
@@ -88,6 +91,8 @@ if __name__ == '__main__':
     print('Arguments:')
     print(f"    chunksize: {chunksize}")
     print(f"    url: {url}")
+    print(f"    mode: {mode}")
+    print(f"    only_need_context: {only_need_context}")
     
     # 执行
     for query in querys:
@@ -95,6 +100,6 @@ if __name__ == '__main__':
         print(f"Query: {query}")
         client_v1_query(url=url, query=query, chunksize=chunksize,
                     um='v1_query_test001',  
-                    mode="naive", 
-                    only_need_context=False)
+                    mode=mode, 
+                    only_need_context=only_need_context)
     

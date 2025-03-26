@@ -1,6 +1,11 @@
 # config/prod.yaml
 scene: 
-  path: "resources/scenes/identity"  # 默认路径
+  path: "resources/scenes/identity"  # rag库默认路径
+  mode: "naive"  # naive, default 
+                 # default模式为标准的 LightRAG
+                 # naive模式下，LightRAG退化为向量库检索的RAG
+                 
+
 
 embed:
   embed_model: "nomic-embed-text"

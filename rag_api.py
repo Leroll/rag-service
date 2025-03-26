@@ -1,9 +1,7 @@
 from fastapi import FastAPI, HTTPException, File, UploadFile
 from pydantic import BaseModel
 import os
-from lightrag import LightRAG, QueryParam
-from lightrag.llm.ollama import ollama_embed, ollama_model_complete
-from lightrag.utils import EmbeddingFunc
+from lightrag import QueryParam
 from typing import Optional
 import asyncio
 import nest_asyncio
@@ -17,12 +15,15 @@ import json
 import traceback
 from loguru import logger
 from config import cfg
+from lightrag_factory import RAGFactory
 
-# 设置
+# 日志及其他配置
 nest_asyncio.apply()  # Apply nest_asyncio to solve event loop issues
 os.environ["TIKTOKEN_CACHE_DIR"] = cfg.tiktoken.cache_dir
 def logger_filter(record: dict) -> bool:
-    filter_modules = ["rag_api", "file_processing"]
+    """日志过滤器，只记录指定模块的日志
+    """
+    filter_modules = ["rag_api", "file_processing", "lightrag_factory"]
     flag = False
     for module in filter_modules:
         if module in record["module"]:
@@ -36,6 +37,8 @@ logger.add(cfg.rag_api.log_path,
            format="{time:YYYY-MM-DD HH:mm:ss.SSS} | {level} | {module} | {function}:{line} | {message}",
            )
 
+# LightRAG实例
+rag = RAGFactory.get_instance() 
 
 # FastAPI app
 app = FastAPI(title="RAG-service", description="API for RAG operations")
@@ -47,29 +50,6 @@ app.add_middleware(
     allow_headers=["*"],
 ) # 增加跨域支持 
 
-# Configure working directory
-rag_path = cfg.scene.path + '/rag'
-print(f"rag_path: {rag_path}")
-if not os.path.exists(rag_path):
-    os.mkdir(rag_path)
-
-rag = LightRAG(
-    working_dir=rag_path,
-    llm_model_func=ollama_model_complete,
-    llm_model_name=cfg.llm.model_name,
-    llm_model_max_async=cfg.llm.llm_model_max_async,
-    llm_model_max_token_size=cfg.llm.llm_model_max_token_size,
-    llm_model_kwargs={"host": cfg.llm.model_host, "options": {"num_ctx": cfg.llm.num_ctx}},
-    embedding_func=EmbeddingFunc(
-        embedding_dim=cfg.embed.embed_dim,
-        max_token_size=cfg.embed.embed_max_token_size,
-        func=lambda texts: ollama_embed(
-            texts, embed_model=cfg.embed.embed_model, host=cfg.embed.embed_host
-        ),
-    ),
-    log_file_path=os.path.join(os.path.dirname(cfg.rag_api.log_path), "lightrag.log"),
-    log_level=cfg.rag_api.log_level,
-)
 
 # Data models
 class QueryRequest(BaseModel):
@@ -134,10 +114,10 @@ async def query_full(request: QueryRequest):
 async def v1_query_legacy(request: LegacyQueryRequest) -> StreamingResponse:
     """流式接口，直接流式返回答案，不做json包装，且不是SSE协议
     """
+    logger.info(f"IN | {request.model_dump()}")
+    
     async def stream_results() -> AsyncGenerator[str, None]:
-        try:
-            logger.info(f"IN | {request.model_dump()}")
-            
+        try:        
             query_param = QueryParam(
                 mode=request.mode, 
                 only_need_context=request.only_need_context,

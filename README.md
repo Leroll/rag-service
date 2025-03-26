@@ -126,7 +126,7 @@ ln -s /nas/rag-service/ollama_models /app/ollama_models
 - 修复 tiktoken 依赖的网络下载问题  
 
 <details>
-<summary>查看更早历史版本</summary>
+<summary><b>查看更早历史版本</b></summary>
 
 **v0.1.3 (2025-02-25)**  
 - 兼容老旧接口数据格式  
@@ -144,6 +144,8 @@ ln -s /nas/rag-service/ollama_models /app/ollama_models
 
 
 # 🎯 TODO 
+- [ ] tag - v0.2.2 - v2025-03-27
+    - [x] 新增LightRAG工厂模式，定制化其特定功能，如naive模式，省略实体抽取与关系的构建过程，退化为向量库检索
 - [ ] tag - v0.3.0 - v遥遥无期
     - [ ] 增加本地离线raw_docs导入
     - [ ] 处理ollama lightRAG的日志分割问题
