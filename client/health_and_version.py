@@ -34,7 +34,7 @@ if __name__ == "__main__":
     host_name = "127.0.0.1" if cfg.server.host == "0.0.0.0" else cfg.server.host  
     base_url = f"http://{host_name}:{cfg.server.port}"
     print(f"BASE_URL:{base_url}")
-
+    
     health_result = check_health(base_url=base_url)
     print("Health check:", health_result)
     version_result = check_version(base_url=base_url)

@@ -30,11 +30,11 @@ if __name__ == '__main__':
     
     query_args = [
         
-        # {"query":"你的名字叫什么", "mode":mode[0], "only_need_context":False},
-        # {"query":"你是谁", "mode":mode[1], "only_need_context":False},
-        # {"query":"你叫啥子", "mode":mode[2], "only_need_context":False},
-        # {"query":"怎么称呼你", "mode":mode[3], "only_need_context":False},
-        # {"query":"我改用什么方式跟你交流", "mode":mode[4], "only_need_context":False},
+        {"query":"你的名字叫什么", "mode":mode[0], "only_need_context":False},
+        {"query":"你是谁", "mode":mode[1], "only_need_context":False},
+        {"query":"你叫啥子", "mode":mode[2], "only_need_context":False},
+        {"query":"怎么称呼你", "mode":mode[3], "only_need_context":False},
+        {"query":"我改用什么方式跟你交流", "mode":mode[4], "only_need_context":False},
         {"query":"企业名称叫什么", "mode":mode[0], "only_need_context":False},
         
     ]

@@ -6,7 +6,7 @@ python client/test_all.py
 # 检查 Python 脚本是否成功执行
 echo "---------------------------------"
 if [ $? -eq 0 ]; then
-    echo "Python 脚本执行成功"
+    echo "Python 脚本执行完毕"
 else
     echo "Python 脚本执行失败"
 fi

@@ -5,6 +5,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))) 
 import requests
 import json
 from config import cfg
+import time
 
 def insert_text(text, base_url):
     """插入文本示例
@@ -28,5 +29,9 @@ if __name__ == '__main__':
 
     
     text = "我的名字叫无师大模型"
+    print('text:', text)
+    t0  = time.perf_counter()
     insert_result = insert_text(text, base_url=base_url)
+    t1 = time.perf_counter()
+    print(f"Insert time: {t1-t0:.3f}s")
     print("Insert result:", insert_result)
