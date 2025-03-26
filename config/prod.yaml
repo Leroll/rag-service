@@ -1,6 +1,6 @@
 # config/prod.yaml
-file:
-  working_dir: "resources/rag"
+scene: 
+  path: "resources/scenes/identity"  # 默认路径
 
 embed:
   embed_model: "nomic-embed-text"
@@ -9,7 +9,8 @@ embed:
   embed_max_token_size: 8192
 
 llm:
-  model_name: "deepseek-r1:7b"
+  # model_name: "deepseek-r1:7b"
+  model_name: "qwq"
   model_host: "http://localhost:11434"
   num_ctx: 8192
   llm_model_max_token_size: 8192
@@ -31,4 +32,4 @@ server:
     log_rotation: "10 MB"
 
 
-version: "v0.2.0"
+version: "v0.2.1"

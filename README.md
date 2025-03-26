@@ -1,5 +1,5 @@
-# RAG Service 🌟
-[![Version](https://img.shields.io/badge/version-0.2.0-blue)](https://github.com/Leroll/rag-service/releases)
+# 🌟 RAG Service 🌟
+[![Version](https://img.shields.io/badge/version-0.2.1-blue)](https://github.com/Leroll/rag-service/releases)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
 **Cloud-deployed RAG Service API** 
@@ -8,7 +8,7 @@
 - 支持多格式文档处理与流式响应。
 
 
-# 安装指南
+# 🔧 安装指南
 ```
 # 1. 安装ollama方式
 sudo tar -C /usr -xzf ollama-linux-amd64.tgz  # 离线安装方式
@@ -24,7 +24,7 @@ pip install -r requirements.txt  # 另在初次运行时会自动安装一些包
 ```
 
 
-# docker部署相关
+# 🐳 docker部署相关
 
 ## 1. 建立docker镜像
 ```
@@ -91,7 +91,7 @@ ln -s /nas/rag-service/ollama_models /app/ollama_models
 ./script/start.sh
 ```
 
-# 服务管理
+# 🚦 服务管理
 ```
 ./scripts/start.sh  # 启动项目
 ./scripts/shutdown.sh  # 关闭项目
@@ -105,7 +105,7 @@ ln -s /nas/rag-service/ollama_models /app/ollama_models
 ./scripts/run_test.sh  
 ```
 
-# 版本更新
+# 🚀 版本更新
 
 **v0.2.1 (2025-03-27)**  
 - 优化 `/v1/query` 接口直接返回字符串，不再进行字典，json包裹
@@ -143,7 +143,7 @@ ln -s /nas/rag-service/ollama_models /app/ollama_models
 </details>
 
 
-# TODO 
+# 🎯 TODO 
 - [ ] tag - v0.3.0 - v遥遥无期
     - [ ] 增加本地离线raw_docs导入
     - [ ] 处理ollama lightRAG的日志分割问题
