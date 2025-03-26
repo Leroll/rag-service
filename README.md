@@ -137,7 +137,7 @@ ln -s /nas/rag-service/ollama_models /app/ollama_models
     - [x] 完成多场景数据文件的结构支持
     - [ ] 添加清洗后文本的持久化存储 
     - [ ] 简化一键测试脚本，改为直接调用各接口测试文件本身
-    - [ ] 添加图谱生成脚本
+    - [x] 添加图谱生成脚本
 - [ ] tag - v0.3.0 - v遥遥无期
     - [ ] 增加本地离线raw_docs导入
     - [ ] 处理ollama lightRAG的日志分割问题

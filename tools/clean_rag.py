@@ -1,11 +1,14 @@
+"""
+用于清空当前config配置中的rag库，便于调试
+"""
+
 import os
 import shutil
 import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))  # 添加项目根目录到 sys.path，以便导入 config.py
-from config import Config
+from config import cfg
 
 # 获取配置
-cfg = Config('./config').get_config()
 working_dir = cfg.file.working_dir
 
 # 检查目录并删除文件
