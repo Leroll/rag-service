@@ -28,52 +28,23 @@ if __name__ == '__main__':
     
     mode = ["naive","local","global","hybrid", "mix"]
     
-    # naive mode
-    print('-'*21, "1 naive query_full", '-'*21)
-    query = "你的名字叫什么"
-    print("query:", query)
-    temp_mode = mode[0]
-    only_need_context = False
-    query_result = query_full(base_url=base_url, query_text=query, mode=temp_mode, only_need_context=only_need_context)
-    print(f"Query result [{temp_mode}]:", query_result)
-    print(json.loads(query_result)['data'])
+    query_args = [
+        
+        # {"query":"你的名字叫什么", "mode":mode[0], "only_need_context":False},
+        # {"query":"你是谁", "mode":mode[1], "only_need_context":False},
+        # {"query":"你叫啥子", "mode":mode[2], "only_need_context":False},
+        # {"query":"怎么称呼你", "mode":mode[3], "only_need_context":False},
+        # {"query":"我改用什么方式跟你交流", "mode":mode[4], "only_need_context":False},
+        {"query":"企业名称叫什么", "mode":mode[0], "only_need_context":False},
+        
+    ]
     
-    # local mode
-    print('-'*21, "2 local query_full", '-'*21)
-    query = "你是谁"
-    print("query:", query)
-    temp_mode = mode[1] 
-    only_need_context = False
-    query_result = query_full(base_url=base_url, query_text=query, mode=temp_mode, only_need_context=only_need_context)
-    print(f"Query result [{temp_mode}]:", query_result)
-    print(json.loads(query_result)['data'])
-    
-    # global mode
-    print('-'*21, "3 global query_full", '-'*21)
-    query = "你叫啥子"
-    print("query:", query)
-    temp_mode = mode[2] 
-    only_need_context = False
-    query_result = query_full(base_url=base_url, query_text=query, mode=temp_mode, only_need_context=only_need_context)
-    print(f"Query result [{temp_mode}]:", query_result)
-    print(json.loads(query_result)['data'])
-    
-    # hybrid mode
-    print('-'*21, "4 hybrid query_full", '-'*21)
-    query = "怎么称呼你"
-    print("query:", query)
-    temp_mode = mode[3] 
-    only_need_context = False
-    query_result = query_full(base_url=base_url, query_text=query, mode=temp_mode, only_need_context=only_need_context)
-    print(f"Query result [{temp_mode}]:", query_result)
-    print(json.loads(query_result)['data'])
-    
-    # mix mode
-    print('-'*21, "5 mix query_full", '-'*21)
-    query = "我改用什么方式跟你交流"
-    print("query:", query)
-    temp_mode = mode[4] 
-    only_need_context = False
-    query_result = query_full(base_url=base_url, query_text=query, mode=temp_mode, only_need_context=only_need_context)
-    print(f"Query result [{temp_mode}]:", query_result)
-    print(json.loads(query_result)['data'])
+    for query_arg in query_args:
+        print('-'*42)
+        print("query_arg:", query_arg)
+        query_result = query_full(base_url=base_url, 
+                                  query_text=query_arg["query"], 
+                                  mode=query_arg["mode"], 
+                                  only_need_context=query_arg["only_need_context"])
+        print(f"Query result [{query_arg['mode']}]:", query_result)
+        print(json.loads(query_result)['data'])

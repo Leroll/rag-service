@@ -56,9 +56,9 @@ def client_v1_query(url, query, um='v1_query_test001', chunksize=1024, mode="nai
                                   chunksize=chunksize, mode=mode, 
                                   only_need_context=only_need_context):
         end = time.perf_counter()
-        gap = (end - begin)*1000
+        gap = (end - begin)
         begin = end
-        print(f"\n------ Recieve Chunk | gap : {gap:.2f}ms  ------")
+        print(f"\n------ Recieve Chunk | gap : {gap:.3f}s  ------")
         print(i)
 
 if __name__ == '__main__':
@@ -71,25 +71,30 @@ if __name__ == '__main__':
     args = parser.parse_args()
     
     # 参数落地
-    if args.query is None:
-        # query = "小明的父亲是谁"
-        query = "1"
-    else:
-        query = args.query  # 修正拼写错误
-    chunksize = args.chunksize
     url = f"http://{cfg.server.host}:{cfg.server.port}/v1/query"
+    chunksize = args.chunksize
+    
+    if args.query :
+        querys = [args.query]  # 若命令行参数中有 query，则使用命令行参数中的 query
+    else:
+        querys = [  # 否则就使用 query 集合
+            "1", 
+            "小明的父亲是谁",
+            "企业的名称是什么"
+        ]  
     
     # 参数打印
-    print('-'*42)
+    print('-'*84)
     print('Arguments:')
-    print(f"    query: {query}")
     print(f"    chunksize: {chunksize}")
     print(f"    url: {url}")
-    print('-'*42)
     
     # 执行
-    client_v1_query(url=url, query=query, chunksize=chunksize,
-                  um='v1_query_test001',  
-                  mode="naive", 
-                  only_need_context=False)
+    for query in querys:
+        print('\n'+'-'*84)
+        print(f"Query: {query}")
+        client_v1_query(url=url, query=query, chunksize=chunksize,
+                    um='v1_query_test001',  
+                    mode="naive", 
+                    only_need_context=False)
     
