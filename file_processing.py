@@ -1,16 +1,14 @@
 import tempfile
 import traceback
-import openpyxl
-import textract
 import os
 from loguru import logger
-
+from unstructured.partition.auto import partition
 
 def temproary_save_file(file_content, file_extension):
     """暂时保存文件
     """
     try:
-        with tempfile.NamedTemporaryFile(delete=False, suffix=f'.{file_extension}') as temp_file:
+        with tempfile.NamedTemporaryFile(delete=False, suffix=f'.{file_extension}', dir='resources/temp') as temp_file:
             temp_file.write(file_content)
             temp_file_path = temp_file.name
         logger.info(f"temporary saved | {temp_file_path}")
@@ -18,54 +16,30 @@ def temproary_save_file(file_content, file_extension):
         temp_file_path = None
         logger.error(f"temporary save failed | {traceback.format_exc()}")
     return temp_file_path
-
-def read_excel(file_extension, temp_file_path):
-    """读取 Excel 文件
+            
+            
+def read_file_unify(file_extension, temp_file_path):
+    """读取所有文件（统一用unstructured处理）
+    
+    支持各种文件类型，包括 PDF、DOCX、PPTX、XLSX、TXT 等
     """
     try:
-        # 使用 openpyxl 读取 Excel 文件
-        workbook = openpyxl.load_workbook(temp_file_path)
-        content = ""
-        for sheet in workbook.sheetnames:
-            worksheet = workbook[sheet]
-            for row in worksheet.rows:
-                for cell in row:
-                    cell_value = cell.value
-                    if cell_value is not None:
-                        content += str(cell_value) + " "
+        # 统一解析文件（自动识别类型）
+        elements = partition(filename=temp_file_path)
+        
+        # 提取文本内容（或保留结构化数据）
+        content = "\n\n".join([str(e) for e in elements])
         msg = "succ"
-        logger.info(f"read excel success | {temp_file_path}")
+        logger.info(f"Read {file_extension} success | {temp_file_path}")
+        
     except Exception as e:
-        content = None
-        msg = "read excel failed"
-        logger.error(f"read excel failed | {traceback.format_exc()}")
-    return content, msg
-
-
-def read_pdf_docx_pptx(file_extension, temp_file_path):
-    """读取 PDF、DOCX、PPTX 等文件
-    """
-    try:
-        # 使用 textract 提取内容
-        text_content = textract.process(temp_file_path)
-        content = text_content.decode('utf-8')
-        msg = "succ"
-        logger.info(f"read {file_extension} success | {temp_file_path}")
-    except Exception as e:
+        logger.error(f"Read {file_extension} failed | {traceback.format_exc()}")
         content = None
         msg = f"read {file_extension} failed"
-        logger.error(f"read {file_extension} failed | {traceback.format_exc()}")
+        
     return content, msg
 
-def read_file(file_extension, temp_file_path):
-    """读取文件内容
-    """
-    if file_extension == 'xlsx':  # 处理 Excel 文件 (.xlsx)
-        content, msg = read_excel(file_extension, temp_file_path)
-    else:  # 处理其他文件类型（如 PDF、DOCX、PPTX 等）
-        content, msg = read_pdf_docx_pptx(file_extension, temp_file_path)
-    return content, msg
-            
+
 def file_processing(file_content, file_extension):
     """处理文件
     
@@ -88,9 +62,25 @@ def file_processing(file_content, file_extension):
         return content, msg
     
     # 2. 读取文件内容
-    content, msg = read_file(file_extension, temp_file_path)
+    # content, msg = read_file(file_extension, temp_file_path)
+    content, msg = read_file_unify(file_extension, temp_file_path)  # 统一用 unstructured 处理
     
     # 3. 删除临时文件
     os.remove(temp_file_path)
     
     return content, msg
+
+
+if __name__ == "__main__":
+    # 测试文件处理
+    file_path = "resources/raw_docs/identity.html"
+    # file_path = "resources/raw_docs/identity.txt"
+    # file_path = "resources/raw_docs/identity.xlsx"
+    
+    with open(file_path, 'rb') as f:
+        file_content = f.read()
+    file_extension = file_path.split('.')[-1]
+    content, msg = file_processing(file_content, file_extension)
+    print('-'*42)
+    print(f"Msg : {msg}")
+    print(f"Content : {content}")

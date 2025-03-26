@@ -2,8 +2,6 @@ pip install fastapi
 pip install uvicorn
 pip install aiofiles
 pip install python-multipart
-pip install textract
 pip install nest_asyncio
 pip install pyyaml # PyYaml
-pip install openpyxl
-pip install loguru
+pip install loguru 

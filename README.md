@@ -57,8 +57,13 @@ pip install -e .
 cd ..
 pip install -r requirements.txt
 
-# 3. 导入相关raw-docs
+# 2.1 安装文件预处理模块及起支持
+pip install "unstructured[all-docs]"   
+sudo apt-get update && sudo apt-get install -y libreoffice  # 1. 安装主程序（包含soffice）
+sudo apt-get install -y libreoffice-headless # 2. 可选：安装无头模式（适用于服务器环境）
+soffice --version # 3. 验证安装
 
+# 3. 导入相关raw-docs
 
 # 4. 验证服务
 ./scripts/start.sh
@@ -128,9 +133,13 @@ ln -s /nas/rag-service/ollama_models /app/ollama_models
     - [x] /v1/query接口，直接返回 回复字符串，不再进行字典，json包裹
     - [x] 拆分各个测试脚本，模块化
     - [x] 文件预处理拆分为单独的模块
-    - [ ] 新增html富文本清洗脚本
-    - [ ] 新增对doc文件插入的支持
+    - [x] 完成文件预处理模块优化，支持html，doc等各式文件类型，且有基础的清洗
+    - [x] 完成多场景数据文件的结构支持
+    - [ ] 添加清洗后文本的持久化存储 
+    - [ ] 简化一键测试脚本，改为直接调用各接口测试文件本身
+    - [ ] 添加图谱生成脚本
 - [ ] tag - v0.3.0 - v遥遥无期
+    - [ ] 增加本地离线raw_docs导入
     - [ ] 处理ollama lightRAG的日志分割问题
     - [ ] Docker 时间优化
     - [ ] 完成 DockerFile 一键脚本
