@@ -1,6 +1,8 @@
 #!/bin/bash
 
 # 定义日志文件和 PID 文件路径
+# NOHUP_LOG="logs/nohup.log"  # 需要调试的时候解开注释
+NOHUP_LOG="dev/null"
 OLLAMA_LOG="logs/ollama.log"
 OLLAMA_PID_FILE="logs/ollama.pid"
 SERVER_PID_FILE="logs/server.pid"
@@ -36,7 +38,7 @@ fi
 
 # 启动 python 服务
 echo "-----------------------------"
-nohup python server.py > /dev/null 2>&1 &
+nohup python server.py > ${NOHUP_LOG} 2>&1 &
 SERVER_PID=$!
 echo "$SERVER_PID" > "$SERVER_PID_FILE"
 echo "server 服务已启动，PID: ${SERVER_PID} "
