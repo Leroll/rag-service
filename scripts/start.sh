@@ -1,11 +1,28 @@
 #!/bin/bash
+#####################################
+# 用法：./scripts/start.sh -v
+#   支持 -v 参数，启用详细日志模式，否则启动server的日志会输出到 /dev/null
+#####################################
 
 # 定义日志文件和 PID 文件路径
-# NOHUP_LOG="logs/nohup.log"  # 需要调试的时候解开注释
-NOHUP_LOG="dev/null"
+NOHUP_LOG="/dev/null"  # 默认值
 OLLAMA_LOG="logs/ollama.log"
 OLLAMA_PID_FILE="logs/ollama.pid"
 SERVER_PID_FILE="logs/server.pid"
+
+# 检查是否传入 -v 参数
+while getopts "v" opt; do
+  case $opt in
+    v)
+      NOHUP_LOG="logs/nohup.log"
+      echo "使用详细日志模式"
+      ;;
+    \?)
+      echo "无效参数: -$OPTARG" >&2
+      exit 1
+      ;;
+  esac
+done
 
 # 确保 logs 目录存在
 mkdir -p logs
