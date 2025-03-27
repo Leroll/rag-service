@@ -107,6 +107,9 @@ ln -s /nas/rag-service/ollama_models /app/ollama_models
 
 # 🚀 版本更新
 
+**v0.2.2 (2025-03-27)**
+- 新增LightRAG工厂模式，定制化其特定功能，如naive模式，省略实体抽取与关系的构建过程，退化为向量库检索
+
 **v0.2.1 (2025-03-27)**  
 - 优化 `/v1/query` 接口直接返回字符串，不再进行字典，json包裹
 - 文件预处理模块新增对 HTML/DOC 格式的支持  
@@ -122,11 +125,11 @@ ln -s /nas/rag-service/ollama_models /app/ollama_models
 - 增加测试用例和日志模块  
 - 完善 Docker 镜像打包pipeline  
 
-**v0.1.4 (2025-02-25)**  
-- 修复 tiktoken 依赖的网络下载问题  
-
 <details>
 <summary><b>查看更早历史版本</b></summary>
+
+**v0.1.4 (2025-02-25)**  
+- 修复 tiktoken 依赖的网络下载问题  
 
 **v0.1.3 (2025-02-25)**  
 - 兼容老旧接口数据格式  
@@ -144,8 +147,6 @@ ln -s /nas/rag-service/ollama_models /app/ollama_models
 
 
 # 🎯 TODO 
-- [ ] tag - v0.2.2 - v2025-03-27
-    - [x] 新增LightRAG工厂模式，定制化其特定功能，如naive模式，省略实体抽取与关系的构建过程，退化为向量库检索
 - [ ] tag - v0.3.0 - v遥遥无期
     - [ ] 增加本地离线raw_docs导入
     - [ ] 处理ollama lightRAG的日志分割问题
