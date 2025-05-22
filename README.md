@@ -41,13 +41,13 @@ cd app/
 
 # 1. 安装 ollama 
 tar -C /usr -xzf ollama-linux-amd64.tgz  # root不用sudo
-export OLLAMA_MODELS=/app/ollama_models  >> ~/.bashrc # 更改model位置
+echo "export OLLAMA_MODELS=/app/ollama_models"  >> ~/.bashrc # 更改model位置
 source ~/.bashrc
 rm ollama-linux-amd64.tgz 
 
 # 2. 安装服务
-pip config set global.index-url http://maven.paic.com.cn/repository/pypi/simple
-pip config set install.trusted-host maven.paic.com.cn
+pip config set global.index-url http://xxxx/repository/pypi/simple
+pip config set install.trusted-host xxxxx.com
 
 tar xzvf rag-service_vx.x.x.tar.gz
 rm rag-service_vx.x.x.tar.gz
@@ -71,25 +71,6 @@ soffice --version # 3. 验证安装
 ./scripts/shutdown.sh
 ```
 
-
-## 2. 部署
-使用这种方式改起来方便点
-```
-# 1. 启动参数
-sleep infiity
-
-# 2. value.yaml配置
-container:
-    port: 50051
-env:
-    env_profile:prod
-terminal: true
-
-
-# 3. 进入镜像后
-ln -s /nas/rag-service/ollama_models /app/ollama_models
-./script/start.sh
-```
 
 # 🚦 服务管理
 ```
@@ -147,7 +128,7 @@ ln -s /nas/rag-service/ollama_models /app/ollama_models
 
 
 # 🎯 TODO 
-- [ ] tag - v0.3.0 - v遥遥无期
+- [ ] tag - v0.3.0 - v2025-xx-xx
     - [ ] 增加本地离线raw_docs导入
     - [ ] 处理ollama lightRAG的日志分割问题
     - [ ] Docker 时间优化
