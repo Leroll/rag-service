@@ -36,7 +36,6 @@ if __name__ == '__main__':
     # file_paths = [
     #     'resources/raw_docs/identity.txt',
     #     'resources/raw_docs/identity.xlsx',
-    #     # 'resources/raw_企业分析报告/附件-2.doc',
     # ]
     
     
