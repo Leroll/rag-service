@@ -1,5 +1,8 @@
 # 🌟 RAG Service 🌟
-[![Version](https://img.shields.io/badge/version-0.2.1-blue)](https://github.com/Leroll/rag-service/releases)
+[![GitHub stars](https://img.shields.io/github/stars/Leroll/rag-service?style=social)](https://github.com/Leroll/rag-service/stargazers)
+[![GitHub all releases](https://img.shields.io/github/downloads/Leroll/rag-service/total)](https://github.com/Leroll/rag-service/releases)
+[![GitHub release (latest by date)](https://img.shields.io/github/v/release/Leroll/rag-service)](https://github.com/Leroll/rag-service/releases/latest)
+[![GitHub last commit](https://img.shields.io/github/last-commit/Leroll/rag-service)](https://github.com/Leroll/rag-service/commits/main)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
 **Cloud-deployed RAG Service API** 
