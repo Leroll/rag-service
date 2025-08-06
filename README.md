@@ -7,7 +7,7 @@
 **Cloud-deployed RAG Service API** 
 
 - 云原生RAG服务API，基于lightRAG构建的即插即用知识增强生成系统，一键可用。
-- 支持多格式文档处理与流式响应。
+- 支持多格式文档处理与流式响应。 
 
 
 # 🔧 安装指南
