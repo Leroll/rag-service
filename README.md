@@ -4,6 +4,7 @@
 [![GitHub last commit](https://img.shields.io/github/last-commit/Leroll/rag-service)](https://github.com/Leroll/rag-service/commits/main)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
+
 **Cloud-deployed RAG Service API** 
 
 - 云原生RAG服务API，基于lightRAG构建的即插即用知识增强生成系统，一键可用。
